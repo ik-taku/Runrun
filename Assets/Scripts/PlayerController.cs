@@ -6,6 +6,8 @@ public class PlayerController : MonoBehaviour
     private Rigidbody2D rb;
     private int jumpCount = 0;
 
+    public bool isGameover = false;
+
     [SerializeField] private float jumpPower = 5.0f;
     [SerializeField] private Animator anim;
 
@@ -16,9 +18,22 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
     }
 
+    void Start()
+    {
+        playerControls.Enable();
+    }
+
+    void Update()
+    {
+        if (isGameover)
+        {
+            Invoke("Gameover", 1.0f);
+        }
+    }
+
     private void OnJump()
     {
-        if (jumpCount >= 2) return;
+        if (jumpCount >= 2 || isGameover) return;
 
         rb.AddForce(Vector2.up * jumpPower, ForceMode2D.Impulse);
         anim.SetBool("IsJump", true);
@@ -32,5 +47,16 @@ public class PlayerController : MonoBehaviour
             jumpCount = 0;
             anim.SetBool("IsJump", false);
         }
+    }
+
+    private void OnTriggerEnter2D()
+    {
+        isGameover = true;
+    }
+
+    private void Gameover()
+    {
+        playerControls.Disable();
+        UIController.instance.Gameover();
     }
 }
